@@ -21,16 +21,16 @@ class combination_generator {
                 r = n;
                 cout << "[info] nCr requires r <= n, setting r = " << n << endl;
             }
-            std::fill(use.end() - r, use.end(), true);
+            std::fill(use.begin(), use.begin() + r, true);
         }
         template<class output_iterator>
         bool operator()(output_iterator result) {
             iterator_type c = first;
             for (unsigned int i = 0; i < use.size(); ++i, ++c) {
-                if (!use[i])
+                if (use[i])
                     *result++ = *c;
             }
-            return std::next_permutation(use.begin(), use.end());
+            return std::prev_permutation(use.begin(), use.end());
         }
 };
 template<class iterator_type>
