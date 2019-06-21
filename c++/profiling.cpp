@@ -4,8 +4,9 @@
 
 using namespace std;
 
-double elapsed(chrono::time_point<chrono::high_resolution_clock> tp_last) {
-    chrono::duration<double> tp_diff = chrono::high_resolution_clock::now() - tp_last;
+template <typename T>
+double elapsed(chrono::time_point<T> tp_last) {
+    chrono::duration<double> tp_diff = T::now() - tp_last;
     return chrono::duration_cast<chrono::milliseconds>(tp_diff).count();
 }
 
@@ -16,7 +17,9 @@ int main(int argc, char** argv) {
         exit(1);
     }
     int delay = atoi(argv[1]);
-    auto tp_last = chrono::high_resolution_clock::now();
+    //auto tp_last = chrono::high_resolution_clock::now();
+    //auto tp_last = chrono::system_clock::now();
+    auto tp_last = chrono::steady_clock::now();
     this_thread::sleep_for(chrono::seconds(delay));
     cout << "[debug|" << elapsed(tp_last) << "ms] elapsed" << endl;
 
