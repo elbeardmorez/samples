@@ -213,7 +213,8 @@ string add_(string s1, string s2) {
     }
 
     // replace any sign
-    res = sign + res;
+    if (res != "0")
+        res = sign + res;
 
     cout << "added s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
@@ -371,7 +372,8 @@ string multiply_(string s1, string s2) {
     }
 
     // replace any sign
-    res = sign + res;
+    if (res != "0")
+        res = sign + res;
 
     cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
