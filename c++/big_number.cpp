@@ -253,7 +253,11 @@ void multiply_(string s1, string s2, string& res) {
         string ss;
         while (l > 1) {
             ss = res.substr(l, 1);
-            if (ss != "0" && ss != ".") break;
+            if (ss == ".") {
+               l--;
+               break;
+            } else if (ss != "0")
+                break;
             l--;
         }
         res = res.substr(0, l);
