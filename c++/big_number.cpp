@@ -46,7 +46,7 @@ void add_(string s1, string s2, string& res) {
         dot2 = l_s2 - 2;
     }
     string *x;
-    int append;
+    int append = 0;
     if (l_s1 - dot1 < l_s2 - dot2) {
         x = &s1;
         append = (l_s2 - dot2) - (l_s1 - dot1);
