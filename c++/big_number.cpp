@@ -98,6 +98,7 @@ string add_(string s1, string s2) {
     }
     cout << "switch: " << switch_ << ", xover: " << xover << endl;
 
+    int l;
     int carry = 0;
     int idx = 0;
     int i1 = 0;
@@ -189,9 +190,30 @@ string add_(string s1, string s2) {
     }
     if (carry != 0)
         res = to_string(carry) + res;
-    int offset = 0;
-    while (res.substr(offset, 1) == "0") offset++;
-    res = sign + res.substr(offset);
+    // strip leading / trailing 0s
+    l = 0;
+    while (l < res.length() && res.substr(l, 1) == "0")
+        l++;
+    res = res.substr(l);
+    if (res.substr(0, 1) == ".") res = "0" + res;
+    int dot = res.find(".");
+    if (dot > -1) {
+        l = res.length() - 1;
+        string ss;
+        while (l > 0) {
+            ss = res.substr(l, 1);
+            if (ss == ".") {
+               l--;
+               break;
+            } else if (ss != "0")
+                break;
+            l--;
+        }
+        res = res.substr(0, l + 1);
+    }
+
+    // replace any sign
+    res = sign + res;
 
     cout << "added s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
