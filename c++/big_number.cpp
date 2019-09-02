@@ -9,6 +9,7 @@ using namespace std;
 
 string add_(string s1, string s2) {
 
+    // subtraction is not commutitive
     string res;
 
     string s1_orig = string(s1);
@@ -69,7 +70,9 @@ string add_(string s1, string s2) {
     if (l_s1 == l_s2) {
         for (int l = 0; l < l_s1; l++) {
             if (s1.substr(l, 1) == ".") continue;
-            if (stoi(s1.substr(l, 1)) < stoi(s2.substr(l, 1))) {
+            if (stoi(s1.substr(l, 1)) > stoi(s2.substr(l, 1)))
+                break;
+            else if (stoi(s1.substr(l, 1)) < stoi(s2.substr(l, 1))) {
                 switch_ = 1;
                 break;
             }
@@ -77,20 +80,23 @@ string add_(string s1, string s2) {
     } else if (l_s2 > l_s1)
         switch_ = 1;
 
-    if (switch_ == 1) {
-        string s1_ = s2;
-        s2 = s1;
-        s1 = s1_;
-        int l_s1_ = l_s2;
-        l_s2 = l_s1;
-        l_s1 = l_s1_;
-        int n1_ = n2;
-        n2 = n1;
-        n1 = n1_;
-    }
-
     // ultimate sign
-    string sign = n1 == 1 ? "-" : "";
+    string sign = "";
+    int xover = 0;
+    if (n1 == 1 && n2 == 1)
+        sign = "-";
+    else if (n1 == 0 && n2 == 1 && switch_) {
+        // s1 is positive, but s2 is negative and is bigger in magnitude
+        sign = "-";
+        xover = 1;
+    } else if (n1 == 1 && n2 == 0 && switch_) {
+        // s1 is negative, but s2 is positive and is bigger in magnitude
+        xover = 1;
+    } else if (n1 == 1 && n2 == 0 && !switch_) {
+        // s1 is negative, s2 is positive but is smaller in magnitude
+        sign = "-";
+    }
+    cout << "switch: " << switch_ << ", xover: " << xover << endl;
 
     int carry = 0;
     int idx = 0;
@@ -100,34 +106,84 @@ string add_(string s1, string s2) {
     string sum_;
     string ss1;
     string ss2;
-    //cout << "adding s1: " << s1 << ", s2: " << s2 << ", l_s1: " << l_s1 << ", l_s2: " << l_s2 << endl;
-    while (idx < l_s1) {
-        ss1 = s1.substr(l_s1 - idx - 1, 1);
-        if (ss1 == ".") {
-            res = "." + res;
-            idx++;
-            continue;
+    //cout << "adding s1: " << s1 << ", s2: " << s2 << ", l_s1: " << l_s1 << ", l_s2: " << l_s2 << ", xover: " << xover << endl;
+    while (idx < max(l_s1, l_s2)) {
+        i1 = 0;
+        if (idx < l_s1) {
+            ss1 = s1.substr(l_s1 - idx - 1, 1);
+            if (ss1 == ".") {
+                res = "." + res;
+                idx++;
+                continue;
+            }
+            i1 = stoi(ss1);
         }
-        i1 = stoi(ss1);
         i2 = 0;
         if (idx < l_s2) {
             ss2 = s2.substr(l_s2 - idx - 1, 1);
+            if (ss2 == ".") {
+                res = "." + res;
+                idx++;
+                continue;
+            }
             i2 = stoi(ss2);
         }
         sum = op(i1, i2) + carry;
         sum_ = to_string(sum);
-        //cout << (n1 + n2 == 1 ? "negated" : "added") << " i1: " << i1 << ", i2: " << i2 << ", sum: " << sum << ", res: " << res << endl;
-        if (sum > 9) {
+        //cout << (n1 + n2 == 1 ? "negated" : "added") << " i1: " << i1 << ", i2: " << i2 << ", carry: " << carry << ", sum: " << sum << ", res: " << res << endl;
+        carry = 0;
+        if (sum == 0) {
+            sum_ = to_string(sum);
+            res = sum_ + res;
+            cout << "process 0 | res: " << res << endl;
+        } else if (sum > 9) {
             carry = 1;
-            res = sum_.substr(sum_.length() - 1) + res;
-        } else if (sum < 0) {
-            carry = -1;
-            sum = sum + 10;
             sum_ = to_string(sum);
             res = sum_.substr(sum_.length() - 1) + res;
-        } else {
+            cout << "process 1 | res: " << res << endl;
+        } else if (sum < -9) {
+            carry = -1;
+            sum_ = to_string(sum);
+            res = sum_.substr(sum_.length() - 1) + res;
+            cout << "process 2 | res: " << res << endl;
+        } else if (sum < 0) {
             carry = 0;
-            res = sum_ + res;
+            if (xover && n1 < n2) {
+                carry = -1;
+                sum = sum - 10;
+                sum_ = to_string(sum);
+                res = sum_.substr(sum_.length() - 1) + res;
+                cout << "process 3 | res: " << res << endl;
+            } else if (!xover || (xover && n1 > n2)) {
+                carry = -1;
+                sum = sum + 10;
+                sum_ = to_string(sum);
+                res = sum_.substr(sum_.length() - 1) + res;
+                cout << "process 4 | res: " << res << endl;
+            } else {
+                sum_ = to_string(sum);
+                res = sum_.substr(1) + res;
+                cout << "process 5 | res: " << res << endl;
+            }
+        } else if (sum > 0) {
+            carry = 0;
+            if (xover && n1 > n2) {
+                carry = 1;
+                sum = sum - 10;
+                sum_ = to_string(sum);
+                res = sum_.substr(sum_.length() - 1) + res;
+                cout << "process 6 | res: " << res << endl;
+            } else if (xover && n1 < n2) {
+                carry = 1;
+                sum = sum - 10;
+                sum_ = to_string(sum);
+                res = sum_.substr(sum_.length() - 1) + res;
+                cout << "process 7 | res: " << res << endl;
+             } else {
+                sum_ = to_string(sum);
+                res = sum_ + res;
+                cout << "process 8 | res: " << res << endl;
+            }
         }
         idx++;
     }
