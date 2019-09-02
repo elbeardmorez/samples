@@ -247,14 +247,17 @@ void multiply_(string s1, string s2, string& res) {
         l++;
     res = res.substr(l);
     if (res.substr(0, 1) == ".") res = "0" + res;
-    l = res.length() - 1;
-    string ss;
-    while (l > 0) {
-        ss = res.substr(l, 1);
-        if (ss != "0" && ss != ".") break;
-        l--;
+    int dot = res.find(".");
+    if (dot > -1) {
+        l = res.length() - 1;
+        string ss;
+        while (l > 1) {
+            ss = res.substr(l, 1);
+            if (ss != "0" && ss != ".") break;
+            l--;
+        }
+        res = res.substr(0, l);
     }
-    res = res.substr(0, l + 1);
 
     // replace any sign
     res = sign + res;
