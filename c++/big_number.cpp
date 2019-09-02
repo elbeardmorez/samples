@@ -11,6 +11,9 @@ string add_(string s1, string s2) {
 
     string res;
 
+    string s1_orig = string(s1);
+    string s2_orig = string(s2);
+
     int l_s1 = s1.length();
     int l_s2 = s2.length();
 
@@ -134,6 +137,7 @@ string add_(string s1, string s2) {
     while (res.substr(offset, 1) == "0") offset++;
     res = sign + res.substr(offset);
 
+    cout << "added s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
 }
 
@@ -141,18 +145,25 @@ string subtract_(string s1, string s2) {
 
     string res;
 
+    string s1_orig = string(s1);
+    string s2_orig = string(s2);
+
     if (s2.substr(0, 1) == "-")
         s2 = s2.substr(1);
     else
         s2 = "-" + s2;
     res = add_(s1, s2);
 
+    cout << "subtracted s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
 }
 
 string multiply_(string s1, string s2) {
 
     string res;
+
+    string s1_orig = string(s1);
+    string s2_orig = string(s2);
 
     int l_s1 = s1.length();
     int l_s2 = s2.length();
@@ -284,6 +295,7 @@ string multiply_(string s1, string s2) {
     // replace any sign
     res = sign + res;
 
+    cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
 }
 
