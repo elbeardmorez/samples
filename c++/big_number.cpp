@@ -192,7 +192,7 @@ string add_(string s1, string s2) {
         res = to_string(carry) + res;
     // strip leading / trailing 0s
     l = 0;
-    while (l < res.length() && res.substr(l, 1) == "0")
+    while (l < res.length() - 1 && res.substr(l, 1) == "0")
         l++;
     res = res.substr(l);
     if (res.substr(0, 1) == ".") res = "0" + res;
@@ -350,7 +350,7 @@ string multiply_(string s1, string s2) {
 
     // strip leading / trailing 0s
     l = 0;
-    while (l < res.length() && res.substr(l, 1) == "0")
+    while (l < res.length() - 1 && res.substr(l, 1) == "0")
         l++;
     res = res.substr(l);
     if (res.substr(0, 1) == ".") res = "0" + res;
