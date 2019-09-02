@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <functional>
 
 using namespace std;
@@ -286,10 +287,44 @@ string multiply_(string s1, string s2) {
     return res;
 }
 
+void test_() {
+    map<string, int> results{{"pass", 0}, {"fail", 0}};
+    auto test = [&](string op, string (*fn)(string, string), string n1, string n2, string expected) {
+        string res = fn(n1, n2);
+        string sres = res == expected ? "pass" : "fail";
+        cerr << "test | " << n1 << " " << op << " " << n2 << " | [" << sres << "] expected: " << expected << ", res: " << res << endl;
+        return sres;
+    };
+    results[test("+", &add_, "40", "10", "50")]++;
+    results[test("+", &add_, "40", "-10", "30")]++;
+    results[test("+", &add_, "-40", "10", "-30")]++;
+    results[test("+", &add_, "40", "-51.2", "-11.2")]++;
+    results[test("-", &add_, "40", "50", "-10")]++;
+    results[test("-", &add_, "-1", "-0.5", "-0.5")]++;
+    results[test("-", &add_, "40", "51.2", "-11.2")]++;
+    results[test("*", &multiply_, "-10", "-10", "100")]++;
+    results[test("*", &multiply_, "-10", "10", "-100")]++;
+    results[test("*", &multiply_, "10", "-10", "-100")]++;
+    results[test("*", &multiply_, "10", "10", "100")]++;
+
+    int res_total = results["pass"] + results["fail"];
+    char buf[50];
+    sprintf(buf, "%.02f", results["pass"] / (double)res_total);
+    string res_success = buf;
+    cerr << results["pass"] << " [/" << res_total << "] passes - " << res_success << "%" << endl;
+}
+
 int main(int argc, char** argv) {
+
+    if (argc >= 2 && string(argv[1]) == "test") {
+        cerr << "running tests:" << endl;
+        test_();
+        return 0;
+    }
+
     int argc_required = 3;
     if (argc != 1 + argc_required) {
-        cout << "[error] missing " << (argc - argc_required != 1 ? "s, " : ", ") << argc_required << " required" << endl;
+        cout << "[error] missing arg" << (argc - argc_required != 1 ? "s, " : ", ") << argc_required << " required" << endl;
         cout << "[error] syntax: bignumber OPERATOR number1 number2" << endl;
         exit(1);
     }
