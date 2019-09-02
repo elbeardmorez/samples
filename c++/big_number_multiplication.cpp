@@ -6,8 +6,45 @@
 using namespace std;
 
 void multiply_(string s1, string s2, string& res) {
+
     int l_s1 = s1.length();
     int l_s2 = s2.length();
+
+    // trim signs
+    int n1 = 0;
+    int n2 = 0;
+    if (s1.substr(0, 1) == "-") {
+        n1 = 1;
+        s1 = s1.substr(1);
+        l_s1--;
+    }
+    if (s2.substr(0, 1) == "-") {
+        n2 = 1;
+        s2 = s2.substr(1);
+        l_s2--;
+    }
+    // ultimate sign
+    string sign = n1 + n2 == 1 ? "-" : "";
+
+    // shift any mantissa
+    int l_mantissa;
+    int dot1 = s1.find(".");
+    int shift = 0;
+    if (dot1 > -1) {
+        l_mantissa = l_s1 - dot1 - 1;
+        shift += l_mantissa;
+        s1 = s1.erase(dot1, 1);
+        l_s1--;
+    }
+    int dot2 = s2.find(".");
+    if (dot2 > -1) {
+        l_mantissa = l_s2 - dot2 - 1;
+        shift += l_mantissa;
+        s2 = s2.erase(dot2, 1);
+        l_s2--;
+    }
+
+    int l;
     int i1;
     int i2;
     int idx;
@@ -64,8 +101,35 @@ void multiply_(string s1, string s2, string& res) {
         //cout << "post carry: " << carry << endl;
         idx++;
     }
+
     if (carry != 0)
         res = to_string(carry) + res;
+
+    if (shift > 0) {
+        //cout << "shift: " << shift << endl;
+        int l_res = res.length();
+        l_res = res.length();
+        res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
+    }
+
+    // strip leading / trailing 0s
+    l = 0;
+    while (l < res.length() && res.substr(l, 1) == "0")
+        l++;
+    res = res.substr(l);
+    if (res.substr(0, 1) == ".") res = "0" + res;
+    l = res.length() - 1;
+    string ss;
+    while (l > 0) {
+        ss = res.substr(l, 1);
+        if (ss != "0" && ss != ".") break;
+        l--;
+    }
+    res = res.substr(0, l + 1);
+
+    // replace any sign
+    res = sign + res;
+
     return;
 }
 
