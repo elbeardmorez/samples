@@ -6,7 +6,9 @@
 
 using namespace std;
 
-void add_(string s1, string s2, string& res) {
+string add_(string s1, string s2) {
+
+    string res;
 
     int l_s1 = s1.length();
     int l_s2 = s2.length();
@@ -131,10 +133,12 @@ void add_(string s1, string s2, string& res) {
     while (res.substr(offset, 1) == "0") offset++;
     res = sign + res.substr(offset);
 
-    return;
+    return res;
 }
 
-void multiply_(string s1, string s2, string& res) {
+string multiply_(string s1, string s2) {
+
+    string res;
 
     int l_s1 = s1.length();
     int l_s2 = s2.length();
@@ -266,7 +270,7 @@ void multiply_(string s1, string s2, string& res) {
     // replace any sign
     res = sign + res;
 
-    return;
+    return res;
 }
 
 int main(int argc, char** argv) {
@@ -281,20 +285,20 @@ int main(int argc, char** argv) {
     string s1 = string(argv[2]);
     string s2 = string(argv[3]);
 
-    string res = "";
+    string res;
     if (op == "+" ) {
         cout << "[info] adding | " << s1 << " + " << s2 << endl;
-        add_(s1, s2, res);
+        res = add_(s1, s2);
     } else if (op == "-" ) {
         cout << "[info] subtracting | " << s1 << " - " << s2 << endl;
         if (s2.substr(0, 1) == "-")
             s2 = s2.substr(1);
         else
             s2 = "-" + s2;
-        add_(s1, s2, res);
+        res = add_(s1, s2);
     } else if (op == "*" ) {
         cout << "[info] multiplying | " << s1 << " * " << s2 << endl;
-        multiply_(s1, s2, res);
+        res = multiply_(s1, s2);
     }
 
     cout << res << endl;
