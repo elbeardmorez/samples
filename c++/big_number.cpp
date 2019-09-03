@@ -7,6 +7,8 @@
 
 using namespace std;
 
+static int debug = 0;
+
 string add_(string s1, string s2) {
 
     // subtraction is not commutitive
@@ -36,7 +38,6 @@ string add_(string s1, string s2) {
         op = std::minus<int>();
     else
         op = std::plus<int>();
-
     // equalise mantissa
     int dot1 = s1.find(".");
     int dot2 = s2.find(".");
@@ -96,7 +97,7 @@ string add_(string s1, string s2) {
         // s1 is negative, s2 is positive but is smaller in magnitude
         sign = "-";
     }
-    cout << "switch: " << switch_ << ", xover: " << xover << endl;
+    if (debug >= 1) cout << "switch: " << switch_ << ", xover: " << xover << endl;
 
     int l;
     int carry = 0;
@@ -107,7 +108,7 @@ string add_(string s1, string s2) {
     string sum_;
     string ss1;
     string ss2;
-    //cout << "adding s1: " << s1 << ", s2: " << s2 << ", l_s1: " << l_s1 << ", l_s2: " << l_s2 << ", xover: " << xover << endl;
+    if (debug >= 1) cout << "adding s1: " << s1 << ", s2: " << s2 << ", l_s1: " << l_s1 << ", l_s2: " << l_s2 << ", xover: " << xover << endl;
     while (idx < max(l_s1, l_s2)) {
         i1 = 0;
         if (idx < l_s1) {
@@ -131,22 +132,22 @@ string add_(string s1, string s2) {
         }
         sum = op(i1, i2) + carry;
         sum_ = to_string(sum);
-        //cout << (n1 + n2 == 1 ? "negated" : "added") << " i1: " << i1 << ", i2: " << i2 << ", carry: " << carry << ", sum: " << sum << ", res: " << res << endl;
+        if (debug >= 1) cout << (n1 + n2 == 1 ? "negated" : "added") << " i1: " << i1 << ", i2: " << i2 << ", carry: " << carry << ", sum: " << sum << ", res: " << res << endl;
         carry = 0;
         if (sum == 0) {
             sum_ = to_string(sum);
             res = sum_ + res;
-            cout << "process 0 | res: " << res << endl;
+            if (debug >= 2) cout << "[0] res: " << res << endl;
         } else if (sum > 9) {
             carry = 1;
             sum_ = to_string(sum);
             res = sum_.substr(sum_.length() - 1) + res;
-            cout << "process 1 | res: " << res << endl;
+            if (debug >= 2) cout << "[1] res: " << res << endl;
         } else if (sum < -9) {
             carry = -1;
             sum_ = to_string(sum);
             res = sum_.substr(sum_.length() - 1) + res;
-            cout << "process 2 | res: " << res << endl;
+            if (debug >= 2) cout << "[2] res: " << res << endl;
         } else if (sum < 0) {
             carry = 0;
             if (xover && n1 < n2) {
@@ -154,17 +155,17 @@ string add_(string s1, string s2) {
                 sum = sum - 10;
                 sum_ = to_string(sum);
                 res = sum_.substr(sum_.length() - 1) + res;
-                cout << "process 3 | res: " << res << endl;
+                if (debug >= 2) cout << "[3] res: " << res << endl;
             } else if (!xover || (xover && n1 > n2)) {
                 carry = -1;
                 sum = sum + 10;
                 sum_ = to_string(sum);
                 res = sum_.substr(sum_.length() - 1) + res;
-                cout << "process 4 | res: " << res << endl;
+                if (debug >= 2) cout << "[4] res: " << res << endl;
             } else {
                 sum_ = to_string(sum);
                 res = sum_.substr(1) + res;
-                cout << "process 5 | res: " << res << endl;
+                if (debug >= 2) cout << "[5] res: " << res << endl;
             }
         } else if (sum > 0) {
             carry = 0;
@@ -173,17 +174,17 @@ string add_(string s1, string s2) {
                 sum = sum - 10;
                 sum_ = to_string(sum);
                 res = sum_.substr(sum_.length() - 1) + res;
-                cout << "process 6 | res: " << res << endl;
+                if (debug >= 2) cout << "[6] res: " << res << endl;
             } else if (xover && n1 < n2) {
                 carry = 1;
                 sum = sum - 10;
                 sum_ = to_string(sum);
                 res = sum_.substr(sum_.length() - 1) + res;
-                cout << "process 7 | res: " << res << endl;
+                if (debug >= 2) cout << "[7] res: " << res << endl;
              } else {
                 sum_ = to_string(sum);
                 res = sum_ + res;
-                cout << "process 8 | res: " << res << endl;
+                if (debug >= 2) cout << "[8] res: " << res << endl;
             }
         }
         idx++;
@@ -216,7 +217,7 @@ string add_(string s1, string s2) {
     if (res != "0")
         res = sign + res;
 
-    cout << "added s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
+    if (debug >= 1) cout << "added s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
     return res;
 }
 
@@ -233,7 +234,7 @@ string subtract_(string s1, string s2) {
         s2 = "-" + s2;
     res = add_(s1, s2);
 
-    cout << "subtracted s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
+    if (debug >= 1) cout << "subtracted s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
     return res;
 }
 
@@ -295,21 +296,20 @@ string multiply_(string s1, string s2) {
         idx2 = 0;
         for (idx2 = l_s2 - 1; idx2 >= 0; idx2--) {
             i2 = stoi(s2.substr(idx2, 1));
-            //cout << "orders: " << order1.length() << "|" << order2.length() << \
-            //        ", multiplying i1: " << i1 << ", i2: " << i2 << endl;
+            if (debug >= 10) cout << "orders: " << order1.length() << "|" << order2.length() << \
+                                     ", multiplying i1: " << i1 << ", i2: " << i2 << endl;
             mult = i1 * i2;
             parts.push_back(to_string(mult) + order1 + order2);
             order2 += "0";
         }
         order1 += "0";
     }
-    /*
     // sum parts
-    cout << "# parts:" << endl;
-    for (auto itr = parts.begin(); itr < parts.end(); ++itr) {
-        cout << *itr << endl;
+    if (debug >= 10) {
+        cout << "# parts:" << endl;
+        for (auto itr = parts.begin(); itr < parts.end(); ++itr) {
+            cout << *itr << endl;
     }
-    */
 
     string part;
     idx = 0;
@@ -327,7 +327,7 @@ string multiply_(string s1, string s2) {
         if (parts.size() == 0)
             break;
         s_carry = to_string(carry);
-        //cout << "pre carry: " << carry << endl;
+        if (debug >= 3) cout << "pre carry: " << carry << endl;
         if (s_carry.length() == 1) {
             res = s_carry + res;
             carry = 0;
@@ -335,7 +335,7 @@ string multiply_(string s1, string s2) {
             res = s_carry.substr(s_carry.length() - 1) + res;
             carry = stoi(s_carry.substr(0, s_carry.length() - 1));
         }
-        //cout << "post carry: " << carry << endl;
+        if (debug >= 3) cout << "post carry: " << carry << endl;
         idx++;
     }
 
@@ -343,7 +343,7 @@ string multiply_(string s1, string s2) {
         res = to_string(carry) + res;
 
     if (shift > 0) {
-        //cout << "shift: " << shift << endl;
+        if (debug >= 3) cout << "shift: " << shift << endl;
         int l_res = res.length();
         l_res = res.length();
         res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
@@ -375,7 +375,7 @@ string multiply_(string s1, string s2) {
     if (res != "0")
         res = sign + res;
 
-    cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
+    if (debug >= 1) cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
 }
 
@@ -441,7 +441,7 @@ string divide_(string s1, string s2) {
         append = (l_s1 - dot1) - (l_s2 - dot2);
         l_s2 += append;
     }
-    cout << "s1: " << s1 << ", s2: " << s2 << endl;
+    if (debug >= 3) cout << "s1: " << s1 << ", s2: " << s2 << endl;
 
     // ultimate sign
     string sign = n1 == 1 || n2 == 1 ? "-" : "";
@@ -482,7 +482,7 @@ string divide_(string s1, string s2) {
     for (int l = 0; l < shift; l++)
         one.push_back('0');
 
-    cout << "reciprocal: 1 / s2_, start: " << one << " / " << s2_ << ", shift: " << shift << endl;
+    if (debug >= 2) cout << "reciprocal: 1 / s2_, start: " << one << " / " << s2_ << ", shift: " << shift << endl;
 
     s2_ = "0" + s2_;
     l_s2_++;
@@ -500,25 +500,25 @@ string divide_(string s1, string s2) {
     while (idx < l_s2) {
         rem_head += rem.substr(idx, min(bs, l_s2 - (idx + bs)));
         div_head += s2_.substr(idx, min(bs, l_s2 - (idx + bs)));
-        cout << "recip: " << recip << ", rem_head: " << rem_head << ", div_head: " << div_head << endl;
+        if (debug >= 3) cout << "recip: " << recip << ", rem_head: " << rem_head << ", div_head: " << div_head << endl;
         if (div_head == "0") {
             idx++;
             continue;
         }
         ip = stoi(rem_head) / stoi(div_head);
         buf = subtract_(rem, multiply_(to_string(ip), div));
-        cout << "ip: " << ip << ", buf: " << buf << endl;
+        if (debug >= 4) cout << "ip: " << ip << ", buf: " << buf << endl;
         if (buf.substr(0, 1) == "-") {
             while (buf.substr(0, 1) == "-") {
                 ip--;
                 buf = add_(buf, div);
-                cout << "ip: " << ip << ", buf: " << buf << endl;
+                if (debug >= 3) cout << "ip: " << ip << ", buf: " << buf << endl;
             }
         }
         rem = string(buf);
         recip += to_string(ip);
 
-        cout << "integer part: " << ip << ", remainder: " << rem << endl;
+        if (debug >= 2) cout << "integer part: " << ip << ", remainder: " << rem << endl;
         if (rem == "0")
             break;
         idx += 1;
@@ -526,7 +526,7 @@ string divide_(string s1, string s2) {
 
     if (shift > 0) {
         int l_recip = recip.length();
-        cout << "unshifting reciprocal: " << recip << " by "  << shift << " d.p." << endl;
+        if (debug >= 2) cout << "unshifting reciprocal: " << recip << " by "  << shift << " d.p." << endl;
         while (l_recip <= shift) {
             recip = "0" + recip;
             l_recip++;
@@ -534,14 +534,14 @@ string divide_(string s1, string s2) {
         recip = recip.substr(0, l_recip - shift) + "." + recip.substr(l_recip - shift);
     }
 
-    cout << "multiplying s1: " << s1 << " by 1/s2: " << recip << endl;
+    if (debug >= 2) cout << "multiplying s1: " << s1 << " by 1/s2: " << recip << endl;
     res = multiply_(s1, recip);
 
     // replace any sign
     if (res != "0")
         res = sign + res;
 
-    cout << "divided s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
+    if (debug >= 1) cout << "divided s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
     return res;
 }
 
@@ -576,6 +576,9 @@ void test_() {
 }
 
 int main(int argc, char** argv) {
+
+    auto _ = getenv("DEBUG");
+    if (_ != NULL) debug = stoi(_);
 
     if (argc >= 2 && string(argv[1]) == "test") {
         cerr << "running tests:" << endl;
