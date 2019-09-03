@@ -379,6 +379,172 @@ string multiply_(string s1, string s2) {
     return res;
 }
 
+string divide_(string s1, string s2) {
+
+    string res;
+
+    string s1_orig = string(s1);
+    string s2_orig = string(s2);
+
+    int l_s1 = s1.length();
+    int l_s2 = s2.length();
+
+    // trim signs
+    int n1 = 0;
+    int n2 = 0;
+    if (s1.substr(0, 1) == "-") {
+        n1 = 1;
+        s1 = s1.substr(1);
+        l_s1--;
+    }
+    if (s2.substr(0, 1) == "-") {
+        n2 = 1;
+        s2 = s2.substr(1);
+        l_s2--;
+    }
+
+    // strip leading 0s
+    int l = 0;
+    while (l < l_s1 && s1.substr(l, 1) == "0")
+        l++;
+    s1 = s1.substr(l);
+    if (s1.substr(0, 1) == ".") s1 = "0" + s1;
+    l = 0;
+    while (l < l_s2 && s2.substr(l, 1) == "0")
+        l++;
+    s2 = s2.substr(l);
+    if (s2.substr(0, 1) == ".") s2 = "0" + s2;
+
+    // equalise mantissa
+    int dot1 = s1.find(".");
+    int dot2 = s2.find(".");
+    if (dot1 == -1) {
+        s1.push_back('.');
+        s1.push_back('0');
+        l_s1 += 2;
+        dot1 = l_s1 - 2;
+    }
+    if (dot2 == -1) {
+        s2.push_back('.');
+        s2.push_back('0');
+        l_s2 += 2;
+        dot2 = l_s2 - 2;
+    }
+    string *x;
+    int append;
+    if (l_s1 - dot1 < l_s2 - dot2) {
+        x = &s1;
+        append = (l_s2 - dot2) - (l_s1 - dot1);
+        l_s1 += append;
+    } else if (l_s1 - dot1 > l_s2 - dot2) {
+        x = &s2;
+        append = (l_s1 - dot1) - (l_s2 - dot2);
+        l_s2 += append;
+    }
+    cout << "s1: " << s1 << ", s2: " << s2 << endl;
+
+    // ultimate sign
+    string sign = n1 == 1 || n2 == 1 ? "-" : "";
+
+    // find reciprocal
+    string s2_ = string(s2);
+
+    // strip leading / trailing 0s
+    l = 0;
+    while (l < s2_.length() - 1 && s2_.substr(l, 1) == "0")
+        l++;
+    s2_ = s2_.substr(l);
+    if (s2_.substr(0, 1) == ".") s2_ = "0" + s2_;
+    int dot = s2_.find(".");
+    if (dot > -1) {
+        l = s2_.length() - 1;
+        string ss;
+        while (l > 1) {
+            ss = s2_.substr(l, 1);
+            if (ss == ".") {
+               l--;
+               break;
+            } else if (ss != "0")
+                break;
+            l--;
+        }
+        s2_ = s2_.substr(0, l);
+    }
+
+    dot = s2_.find(".");
+    if (dot > -1)
+      s2_ = s2_.substr(0, dot) + s2_.substr(dot + 1);
+
+    int l_s2_ = s2_.length();
+    int shift = l_s2_;
+
+    string one = "1";
+    for (int l = 0; l < shift; l++)
+        one.push_back('0');
+
+    cout << "reciprocal: 1 / s2_, start: " << one << " / " << s2_ << ", shift: " << shift << endl;
+
+    s2_ = "0" + s2_;
+    l_s2_++;
+
+    string rem = one;
+    string rem_head = "";
+    string div = s2_;
+    string div_head = "";
+    int bs = 1;
+    int idx = 0;
+    int ip;
+    string recip = "";
+    string buf;
+    string buf2;
+    while (idx < l_s2) {
+        rem_head += rem.substr(idx, min(bs, l_s2 - (idx + bs)));
+        div_head += s2_.substr(idx, min(bs, l_s2 - (idx + bs)));
+        cout << "recip: " << recip << ", rem_head: " << rem_head << ", div_head: " << div_head << endl;
+        if (div_head == "0") {
+            idx++;
+            continue;
+        }
+        ip = stoi(rem_head) / stoi(div_head);
+        buf = subtract_(rem, multiply_(to_string(ip), div));
+        cout << "ip: " << ip << ", buf: " << buf << endl;
+        if (buf.substr(0, 1) == "-") {
+            while (buf.substr(0, 1) == "-") {
+                ip--;
+                buf = add_(buf, div);
+                cout << "ip: " << ip << ", buf: " << buf << endl;
+            }
+        }
+        rem = string(buf);
+        recip += to_string(ip);
+
+        cout << "integer part: " << ip << ", remainder: " << rem << endl;
+        if (rem == "0")
+            break;
+        idx += 1;
+    }
+
+    if (shift > 0) {
+        int l_recip = recip.length();
+        cout << "unshifting reciprocal: " << recip << " by "  << shift << " d.p." << endl;
+        while (l_recip <= shift) {
+            recip = "0" + recip;
+            l_recip++;
+        }
+        recip = recip.substr(0, l_recip - shift) + "." + recip.substr(l_recip - shift);
+    }
+
+    cout << "multiplying s1: " << s1 << " by 1/s2: " << recip << endl;
+    res = multiply_(s1, recip);
+
+    // replace any sign
+    if (res != "0")
+        res = sign + res;
+
+    cout << "divided s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
+    return res;
+}
+
 void test_() {
     map<string, int> results{{"pass", 0}, {"fail", 0}};
     auto test = [&](string op, string (*fn)(string, string), string n1, string n2, string expected) {
@@ -398,6 +564,9 @@ void test_() {
     results[test("*", &multiply_, "-10", "10", "-100")]++;
     results[test("*", &multiply_, "10", "-10", "-100")]++;
     results[test("*", &multiply_, "10", "10", "100")]++;
+    results[test("/", &divide_, "81", "9", "9")]++;
+    results[test("/", &divide_, "0.2", "-0.2", "-1")]++;
+    results[test("/", &divide_, "5", "2.5", "2")]++;
 
     int res_total = results["pass"] + results["fail"];
     char buf[50];
@@ -435,6 +604,9 @@ int main(int argc, char** argv) {
     } else if (op == "*" ) {
         cout << "[info] multiplying | " << s1 << " * " << s2 << endl;
         res = multiply_(s1, s2);
+    } else if (op == "/" ) {
+        cout << "[info] dividing | " << s1 << " / " << s2 << endl;
+        res = divide_(s1, s2);
     }
 
     cout << res << endl;
