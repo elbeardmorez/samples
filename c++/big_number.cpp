@@ -7,12 +7,17 @@
 
 using namespace std;
 
+void clean_(string &);
+
 static int debug = 0;
 
 string add_(string s1, string s2) {
 
     // subtraction is not commutitive
     string res;
+
+    clean_(s1);
+    clean_(s2);
 
     string s1_orig = string(s1);
     string s2_orig = string(s2);
@@ -191,27 +196,8 @@ string add_(string s1, string s2) {
     }
     if (carry != 0)
         res = to_string(carry) + res;
-    // strip leading / trailing 0s
-    l = 0;
-    while (l < res.length() - 1 && res.substr(l, 1) == "0")
-        l++;
-    res = res.substr(l);
-    if (res.substr(0, 1) == ".") res = "0" + res;
-    int dot = res.find(".");
-    if (dot > -1) {
-        l = res.length() - 1;
-        string ss;
-        while (l > 0) {
-            ss = res.substr(l, 1);
-            if (ss == ".") {
-               l--;
-               break;
-            } else if (ss != "0")
-                break;
-            l--;
-        }
-        res = res.substr(0, l + 1);
-    }
+
+    clean_(res);
 
     // replace any sign
     if (res != "0")
@@ -241,6 +227,9 @@ string subtract_(string s1, string s2) {
 string multiply_(string s1, string s2) {
 
     string res;
+
+    clean_(s1);
+    clean_(s2);
 
     string s1_orig = string(s1);
     string s2_orig = string(s2);
@@ -349,27 +338,7 @@ string multiply_(string s1, string s2) {
         res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
     }
 
-    // strip leading / trailing 0s
-    l = 0;
-    while (l < res.length() - 1 && res.substr(l, 1) == "0")
-        l++;
-    res = res.substr(l);
-    if (res.substr(0, 1) == ".") res = "0" + res;
-    int dot = res.find(".");
-    if (dot > -1) {
-        l = res.length() - 1;
-        string ss;
-        while (l > 1) {
-            ss = res.substr(l, 1);
-            if (ss == ".") {
-               l--;
-               break;
-            } else if (ss != "0")
-                break;
-            l--;
-        }
-        res = res.substr(0, l);
-    }
+    clean_(res);
 
     // replace any sign
     if (res != "0")
@@ -449,29 +418,9 @@ string divide_(string s1, string s2) {
     // find reciprocal
     string s2_ = string(s2);
 
-    // strip leading / trailing 0s
-    l = 0;
-    while (l < s2_.length() - 1 && s2_.substr(l, 1) == "0")
-        l++;
-    s2_ = s2_.substr(l);
-    if (s2_.substr(0, 1) == ".") s2_ = "0" + s2_;
-    int dot = s2_.find(".");
-    if (dot > -1) {
-        l = s2_.length() - 1;
-        string ss;
-        while (l > 1) {
-            ss = s2_.substr(l, 1);
-            if (ss == ".") {
-               l--;
-               break;
-            } else if (ss != "0")
-                break;
-            l--;
-        }
-        s2_ = s2_.substr(0, l);
-    }
+    clean_(s2_);
 
-    dot = s2_.find(".");
+    int dot = s2_.find(".");
     if (dot > -1)
       s2_ = s2_.substr(0, dot) + s2_.substr(dot + 1);
 
@@ -543,6 +492,31 @@ string divide_(string s1, string s2) {
 
     if (debug >= 1) cout << "divided s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
     return res;
+}
+
+void clean_(string &s) {
+    // strip leading / trailing 0s
+    int l = 0;
+    while (l < s.length() - 1 && s.substr(l, 1) == "0")
+        l++;
+    s = s.substr(l);
+    if (s.substr(0, 1) == ".") s = "0" + s;
+    int dot = s.find(".");
+    if (dot > -1) {
+        l = s.length() - 1;
+        string ss;
+        if (debug >= 4) cout << "clean_ testing [" << l << "] " << ss << endl;
+        while (l > 0) {
+            ss = s.substr(l, 1);
+            if (ss == ".") {
+                l--;
+                break;
+            } else if (ss != "0")
+                break;
+            l--;
+        }
+        s = s.substr(0, l + 1);
+    }
 }
 
 void test_() {
