@@ -338,14 +338,12 @@ string multiply_(string s1, string s2) {
             for (int l = 0; l < shift - l_res; l++) res += "0";
     }
 
-    clean_(res);
-
     // replace any sign
     if (res != "0")
         res = sign + res;
 
-    res = round_(res);
     clean_(res);
+    res = round_(res);
 
     if (debug >= 1) cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
@@ -536,12 +534,18 @@ string round_(string &s, int dp) {
         if (debug >= 6) cout << "rounded: " << rounded << endl;
     }
     if (round) rounded = "1" + rounded;
+    clean_(rounded);
     return rounded;
 }
 
 void clean_(string &s) {
     // strip leading / trailing 0s
     int l = 0;
+    string sign = "";
+    if (s.substr(0, 1) == "-") {
+        sign = "-";
+        s = s.substr(1);
+    }
 
     while (l < s.length() - 1 && s.substr(l, 1) == "0")
         l++;
@@ -563,6 +567,7 @@ void clean_(string &s) {
         }
         s = s.substr(0, l + 1);
     }
+    s = sign + s;
     if (debug >= 4) cout << "cleaned: '" << s << "'" << endl;
 }
 
