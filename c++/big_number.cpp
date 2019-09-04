@@ -158,47 +158,38 @@ string add_(string s1, string s2) {
             if (debug >= 2) cout << "[2] res: " << res << endl;
         } else if (sum < 0) {
             carry = 0;
-            if (xover && n1 < n2) {
-                carry = -1;
+            if (xover && n1 != n2) {
                 sum = sum - 10;
                 sum_ = to_string(sum);
                 res = sum_.substr(sum_.length() - 1) + res;
                 if (debug >= 2) cout << "[3] res: " << res << endl;
-            } else if (!xover || (xover && n1 > n2)) {
-                carry = -1;
+            } else if (!xover && n1 != n2) {
                 sum = sum + 10;
+                carry = -1;
                 sum_ = to_string(sum);
-                res = sum_.substr(sum_.length() - 1) + res;
-                if (debug >= 2) cout << "[4] res: " << res << endl;
+                res = sum_ + res;
+                if (debug >= 2) cout << "[5] res: " << res << endl;
             } else {
                 sum_ = to_string(sum);
                 res = sum_.substr(1) + res;
-                if (debug >= 2) cout << "[5] res: " << res << endl;
+                if (debug >= 2) cout << "[7] res: " << res << endl;
             }
         } else if (sum > 0) {
             carry = 0;
-            if (xover && n1 > n2) {
+            if (xover && n1 != n2) {
                 carry = 1;
                 sum = sum - 10;
                 sum_ = to_string(sum);
                 res = sum_.substr(sum_.length() - 1) + res;
-                if (debug >= 2) cout << "[6] res: " << res << endl;
-            } else if (xover && n1 < n2) {
-                carry = 1;
-                sum = sum - 10;
-                sum_ = to_string(sum);
-                res = sum_.substr(sum_.length() - 1) + res;
-                if (debug >= 2) cout << "[7] res: " << res << endl;
-             } else {
+                if (debug >= 2) cout << "[8] res: " << res << endl;
+            } else {
                 sum_ = to_string(sum);
                 res = sum_ + res;
-                if (debug >= 2) cout << "[8] res: " << res << endl;
+                if (debug >= 2) cout << "[10] res: " << res << endl;
             }
         }
         idx++;
     }
-    if (carry != 0)
-        res = to_string(carry) + res;
 
     clean_(res);
 
@@ -464,7 +455,7 @@ string divide_(string s1, string s2) {
         ip = stoi(rem_head) / stoi(div_head);
         debug = 0;
         buf = subtract_(rem, multiply_(to_string(ip), div));
-        debug = 5;
+        debug = debug_;
         if (debug >= 4) cout << "ip: " << ip << ", buf: " << buf << endl;
         if (buf.substr(0, 1) == "-") {
             if (debug >= 4) cout << "initial estimate ip: " << ip << " is over, rebalancing" << endl;
@@ -472,7 +463,7 @@ string divide_(string s1, string s2) {
                 ip--;
                 debug = 0;
                 buf = add_(buf, div);
-                debug = 5;
+                debug = debug_;
                 if (debug >= 3) cout << "rebalancing, ip: " << ip << ", buf: " << buf << endl;
             }
         }
@@ -546,9 +537,13 @@ void test_() {
     results[test("+", &add_, "40", "-10", "30")]++;
     results[test("+", &add_, "-40", "10", "-30")]++;
     results[test("+", &add_, "40", "-51.2", "-11.2")]++;
-    results[test("-", &add_, "40", "50", "-10")]++;
-    results[test("-", &add_, "-1", "-0.5", "-0.5")]++;
-    results[test("-", &add_, "40", "51.2", "-11.2")]++;
+    results[test("+", &add_, "-2", "12", "10")]++;
+    results[test("-", &subtract_, "40", "50", "-10")]++;
+    results[test("-", &subtract_, "-1", "-0.5", "-0.5")]++;
+    results[test("-", &subtract_, "-0.5", "-1", "0.5")]++;
+    results[test("-", &subtract_, "40", "51.2", "-11.2")]++;
+    results[test("-", &subtract_, "100", "12", "88")]++;
+    results[test("-", &subtract_, "-100", "-12", "-88")]++;
     results[test("*", &multiply_, "-10", "-10", "100")]++;
     results[test("*", &multiply_, "-10", "10", "-100")]++;
     results[test("*", &multiply_, "10", "-10", "-100")]++;
