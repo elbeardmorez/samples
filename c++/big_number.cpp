@@ -422,77 +422,165 @@ string divide_(string s1, string s2) {
 
     clean_(s2_);
 
+    /*
+    shift most significant to 1x10-1 digit
+    e.g. 0.05 -> 0.5 shift 1
+       . 100 -> 1 shift -3
+    */
+    int shift = 0;
     int dot = s2_.find(".");
-    if (dot > -1)
-      s2_ = s2_.substr(0, dot) + s2_.substr(dot + 1);
+    if (dot == -1)
+        shift = -(s2_.length());
+    else {
+        if (s2_.substr(0, 1) == "0") {
+            shift = 0;
+            s2_ = s2_.substr(2);
+            while (s2_.substr(0, 1) == "0") {
+                s2_ = s2_.substr(1);
+                shift++;
+            }
+        } else {
+            shift = -dot;
+            s2_ = s2_.substr(0, dot) + s2_.substr(dot + 1);
+        }
+    }
+    s2_ = "0" + s2_;
+    if (debug >= 2) cerr << "s2_: " << s2_ << ", shift: " << shift << endl;
 
     int l_s2_ = s2_.length();
-    int shift = l_s2_;
 
     string one = "1";
-    for (int l = 0; l < shift; l++)
-        one.push_back('0');
-
-    if (debug >= 2) cout << "reciprocal: 1 / s2_, start: " << one << " / " << s2_ << ", shift: " << shift << endl;
-
-    s2_ = "0" + s2_;
-    l_s2_++;
-
-    string rem = one;
-    string rem_head = "";
-    string div = s2_;
-    string div_head = "";
-    int bs = 1;
-    int idx = 0;
+    string reciprocal = "";
+    string divisor = s2_;
+    int l_divisor = s2_.length();
+    string divisor_ = "";
+    int l_divisor_;
+    string dividend = one;
+    int l_dividend = dividend.length();
+    while (l_dividend < l_divisor) {
+        dividend += "0";
+        l_dividend++;
+    }
+    string remainder = dividend;
+    int l_remainder = remainder.length();
+    string remainder_ = "";
+    int l_remainder_;
+    int idx = 0; //remainder.length() - 1;
+    int idx2 = 0; // divisor / remainder substrings
     int ip;
-    string recip = "";
     string buf;
     string buf2;
-    while (idx < l_s2) {
-        rem_head += rem.substr(idx, min(bs, l_s2 - (idx + bs)));
-        div_head += s2_.substr(idx, min(bs, l_s2 - (idx + bs)));
-        if (debug >= 3) cout << "recip: " << recip << ", rem_head: " << rem_head << ", div_head: " << div_head << endl;
-        if (div_head == "0") {
-            idx++;
-            continue;
+    int max_digits = 150;
+    if (debug >= 2) cout << "reciprocal: 1 / s2_, dividend: " << dividend << ", divisor: " << divisor << ", shift: " << shift << endl;
+
+    // idx is fixed to the dividend!
+    while (idx <= l_dividend) {
+        if (debug >= 3) cout << "reciprocal: " << reciprocal << endl;
+
+        // work on next dividend digit
+
+        if (reciprocal.length() - shift == max_digits)
+            break;
+
+        if (debug >= 3) cout << "loop, remainder: " << remainder << endl;
+
+        // get head estimate
+        if (l_remainder < l_dividend) {
+            // extend dividend for further precision
+            if (debug >= 4) cout << "extending dividend" << endl;
+            dividend += "0";
+            l_dividend++;
+            // bring down next dividend digit to exend remainder
+            remainder += dividend.substr(idx2, 1);
+            l_remainder++;
         }
-        ip = stoi(rem_head) / stoi(div_head);
+        idx++;
+        idx2 = 0;
+        remainder_ = "";
+        l_remainder_ = 0;
+        divisor_ = "";
+        l_divisor_ = 0;
+        while (idx2 < min(5, l_remainder)) {
+            // add to remainder 'head' until valid for estimate
+            if (debug >= 3) cout << "l_remainder: " << l_remainder << ", idx2: " << idx2 << endl;
+            remainder_ += remainder.substr(idx2, 1);
+            l_remainder_++;
+            if (idx2 < l_divisor) {
+                divisor_ += divisor.substr(idx2, 1);
+                l_divisor_++;
+            }
+            idx2++;
+        }
+        if (debug >= 3) cout << "remainder: " << remainder <<  ", divisor_: " << divisor_ << ", remainder_: " << remainder_ << endl;
+        if (divisor_ == "0") {
+            continue;
+            idx2++;
+        }
+        ip = stoi(remainder_) / stoi(divisor_);  // estimate
         debug = 0;
-        buf = subtract_(rem, multiply_(to_string(ip), div));
+        buf = subtract_(remainder, multiply_(to_string(ip), divisor));  // estimate result, full length
         debug = debug_;
         if (debug >= 4) cout << "ip: " << ip << ", buf: " << buf << endl;
-        if (buf.substr(0, 1) == "-") {
-            if (debug >= 4) cout << "initial estimate ip: " << ip << " is over, rebalancing" << endl;
+        if (buf.substr(0, 1) != "-") {
+            if (debug >= 4) cout << "initial estimate ip: " << ip << " is under, closing gap" << endl;
+            while (buf.substr(0, 1) != "-") {
+                ip++;
+                if (debug >= 3) cout << "subtracting buf: " << buf << ", divisor: " << divisor << endl;
+                debug = 0;
+                buf = subtract_(buf, divisor);
+                debug = debug_;
+                if (debug >= 3) cout << "estimate ip: " << ip << ", buf: " << buf << endl;
+            }
+            if (ip > 0) {
+                debug = 0;
+                buf = add_(buf, divisor);
+                debug = debug_;
+                ip--;
+            }
+        } else if (buf.substr(0, 1) == "-") {
+            if (debug >= 4) cout << "initial estimate ip: " << ip << " is over, closing gap" << endl;
             while (buf.substr(0, 1) == "-") {
                 ip--;
+                if (debug >= 3) cout << "adding buf: " << buf << ", divisor: " << divisor << endl;
                 debug = 0;
-                buf = add_(buf, div);
+                buf = add_(buf, divisor);
                 debug = debug_;
-                if (debug >= 3) cout << "rebalancing, ip: " << ip << ", buf: " << buf << endl;
+                if (debug >= 3) cout << "estimate ip: " << ip << ", buf: " << buf << endl;
             }
         }
-        rem = string(buf);
-        recip += to_string(ip);
+        reciprocal += to_string(ip);
+        if (ip > 9) shift++;
 
-        if (debug >= 2) cout << "integer part: " << ip << ", remainder: " << rem << endl;
-        if (rem == "0")
+        remainder = string(buf);
+        l_remainder = remainder.length();
+        if (remainder == "0")
             break;
-        idx += 1;
-    }
 
-    if (shift > 0) {
-        int l_recip = recip.length();
-        if (debug >= 2) cout << "unshifting reciprocal: " << recip << " by "  << shift << " d.p." << endl;
-        while (l_recip <= shift) {
-            recip = "0" + recip;
-            l_recip++;
+        if (debug >= 3) cout << "integer part: " << ip << ", remainder: " << remainder << endl;
+    }
+    if (debug >= 2) cerr << "reciprocal: " << reciprocal << endl;
+    if (shift != 0) {
+        int l_reciprocal = reciprocal.length();
+        if (debug >= 1) cout << "unshifting reciprocal: " << reciprocal << " by "  << shift << " d.p." << endl;
+        int shift_ = abs(shift);
+        for (l = 0; l < shift_; l++) {
+            if (shift > 0)
+                reciprocal += "0";
+            else
+                reciprocal = "0" + reciprocal;
+            if (debug >= 3) cout << "reciprocal: " << reciprocal << endl;
         }
-        recip = recip.substr(0, l_recip - shift) + "." + recip.substr(l_recip - shift);
+        if (shift < 0) {
+            reciprocal = reciprocal.substr(0, 1) + "." + reciprocal.substr(1);
+        } else
+            reciprocal = reciprocal.substr(0, shift) + "." + reciprocal.substr(shift);
+        if (debug >= 3) cout << "reciprocal: " << reciprocal << endl;
     }
+    if (debug >= 2) cerr << "reciprocal shifted: " << reciprocal << endl;
 
-    if (debug >= 2) cout << "multiplying s1: " << s1 << " by 1/s2: " << recip << endl;
+    if (debug >= 1) cout << "multiplying s1: " << s1 << " by 1/s2: " << reciprocal << endl;
     debug = 0;
-    res = multiply_(s1, recip);
+    res = multiply_(s1, reciprocal);
     debug = debug_;
 
     // replace any sign
@@ -594,9 +682,15 @@ void test_() {
     results[test("*", &multiply_, "-10", "10", "-100")]++;
     results[test("*", &multiply_, "10", "-10", "-100")]++;
     results[test("*", &multiply_, "10", "10", "100")]++;
+    results[test("*", &multiply_, "10.2", "10", "102")]++;
+    results[test("*", &multiply_, "0.2", "0.2", "0.04")]++;
+    results[test("*", &multiply_, "0.2", "-0.2", "-0.04")]++;
     results[test("/", &divide_, "81", "9", "9")]++;
     results[test("/", &divide_, "0.2", "-0.2", "-1")]++;
     results[test("/", &divide_, "5", "2.5", "2")]++;
+    results[test("/", &divide_, "-105", "10", "-10.5")]++;
+    results[test("/", &divide_, "-150", "15", "-10")]++;
+    results[test("/", &divide_, "24", "4", "6")]++;
 
     int res_total = results["pass"] + results["fail"];
     char buf[50];
