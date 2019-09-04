@@ -331,7 +331,6 @@ string multiply_(string s1, string s2) {
     if (shift > 0) {
         if (debug >= 3) cout << "shift: " << shift << endl;
         int l_res = res.length();
-        l_res = res.length();
         res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
     }
 
