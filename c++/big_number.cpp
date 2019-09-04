@@ -8,6 +8,7 @@
 using namespace std;
 
 void clean_(string &);
+string round_(string &, int = 10);
 
 static int debug = 0;
 
@@ -340,6 +341,9 @@ string multiply_(string s1, string s2) {
     if (res != "0")
         res = sign + res;
 
+    res = round_(res);
+    clean_(res);
+
     if (debug >= 1) cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
     return res;
 }
@@ -494,8 +498,42 @@ string divide_(string s1, string s2) {
     if (res != "0")
         res = sign + res;
 
+    res = round_(res);
+    clean_(res);
+
     if (debug >= 1) cout << "divided s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
     return res;
+}
+
+string round_(string &s, int dp) {
+    string rounded = "";
+    bool round = false;
+
+    int dot = s.find(".");
+    if (dot == -1)
+        return s;
+    if (s.length() - dot < dp)
+        return s;
+    s = s.substr(0, dot + dp);
+    for (auto itr = s.rbegin(); itr < s.rend(); itr++) {
+        string c(1, *itr);
+        if (debug >= 6) cout << "c: " << c << endl;
+        if (&(*itr) == &(s.back())) {
+            if (stoi(c) >= 5)
+                round = true;
+            rounded = "0";
+        } else if (*itr == '.' || !round)
+            rounded = c + rounded;
+        else if (stoi(c) == 9)
+            rounded = "0" + rounded;
+        else {
+            rounded = to_string(stoi(c) + 1) + rounded;
+            round = false;
+        }
+        if (debug >= 6) cout << "rounded: " << rounded << endl;
+    }
+    if (round) rounded = "1" + rounded;
+    return rounded;
 }
 
 void clean_(string &s) {
