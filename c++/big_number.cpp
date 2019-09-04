@@ -332,7 +332,10 @@ string multiply_(string s1, string s2) {
     if (shift > 0) {
         if (debug >= 3) cout << "shift: " << shift << endl;
         int l_res = res.length();
-        res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
+        if (l_res >= shift)
+            res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
+        else
+            for (int l = 0; l < shift - l_res; l++) res += "0";
     }
 
     clean_(res);
