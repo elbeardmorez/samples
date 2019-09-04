@@ -39,10 +39,13 @@ string add_(string s1, string s2) {
         s2 = s2.substr(1);
         l_s2--;
     }
-    if (n1 + n2 == 1)
+    if (n1 + n2 == 1) {
+        if (debug >= 2) cout << "negating" << endl;
         op = std::minus<int>();
-    else
+    } else {
+        if (debug >= 2) cout << "adding" << endl;
         op = std::plus<int>();
+    }
     // equalise mantissa
     int dot1 = s1.find(".");
     int dot2 = s2.find(".");
@@ -102,7 +105,7 @@ string add_(string s1, string s2) {
         // s1 is negative, s2 is positive but is smaller in magnitude
         sign = "-";
     }
-    if (debug >= 1) cout << "switch: " << switch_ << ", xover: " << xover << endl;
+    if (debug >= 1) cout << "n1: " << n1 << ", n2: " << n2 << ", switch: " << switch_ << ", xover: " << xover << endl;
 
     int l;
     int carry = 0;
@@ -137,7 +140,7 @@ string add_(string s1, string s2) {
         }
         sum = op(i1, i2) + carry;
         sum_ = to_string(sum);
-        if (debug >= 1) cout << (n1 + n2 == 1 ? "negated" : "added") << " i1: " << i1 << ", i2: " << i2 << ", carry: " << carry << ", sum: " << sum << ", res: " << res << endl;
+        if (debug >= 3) cout << (n1 + n2 == 1 ? "negated" : "added") << " i1: " << i1 << ", i2: " << i2 << ", carry: " << carry << ", sum: " << sum << ", res: " << res << endl;
         carry = 0;
         if (sum == 0) {
             sum_ = to_string(sum);
@@ -279,11 +282,14 @@ string multiply_(string s1, string s2) {
     int mult;
     vector<string> parts;
     string order1 = "";
+    if (debug >= 10) cout << "parts, s1: '" << s1 << "', s2: '" << s2 << "'" << endl;
     for (idx = l_s1 - 1; idx >= 0; idx--) {
+        if (debug >= 5) cout << "idx: " << idx << ", ss1: '" << s1.substr(idx, 1) << "'" << endl;
         i1 = stoi(s1.substr(idx, 1));
         string order2 = "";
         idx2 = 0;
         for (idx2 = l_s2 - 1; idx2 >= 0; idx2--) {
+            if (debug >= 5) cout << "idx2: " << idx2 << ", ss2: '" << s2.substr(idx2, 1) << "'" << endl;
             i2 = stoi(s2.substr(idx2, 1));
             if (debug >= 10) cout << "orders: " << order1.length() << "|" << order2.length() << \
                                      ", multiplying i1: " << i1 << ", i2: " << i2 << endl;
@@ -295,8 +301,8 @@ string multiply_(string s1, string s2) {
     }
     // sum parts
     if (debug >= 10) {
-        cout << "# parts:" << endl;
-        for (auto itr = parts.begin(); itr < parts.end(); ++itr) {
+        cout << "parts:" << endl;
+        for (auto itr = parts.begin(); itr < parts.end(); ++itr)
             cout << *itr << endl;
     }
 
@@ -316,7 +322,7 @@ string multiply_(string s1, string s2) {
         if (parts.size() == 0)
             break;
         s_carry = to_string(carry);
-        if (debug >= 3) cout << "pre carry: " << carry << endl;
+        if (debug >= 4) cout << "res: " << res << ", carry [pre]: " << carry << endl;
         if (s_carry.length() == 1) {
             res = s_carry + res;
             carry = 0;
@@ -324,7 +330,7 @@ string multiply_(string s1, string s2) {
             res = s_carry.substr(s_carry.length() - 1) + res;
             carry = stoi(s_carry.substr(0, s_carry.length() - 1));
         }
-        if (debug >= 3) cout << "post carry: " << carry << endl;
+        if (debug >= 4) cout << "res: " << res << ", carry [post]: " << carry << endl;
         idx++;
     }
 
@@ -350,6 +356,7 @@ string multiply_(string s1, string s2) {
 
 string divide_(string s1, string s2) {
 
+    int debug_ = debug;
     string res;
 
     string s1_orig = string(s1);
@@ -455,13 +462,18 @@ string divide_(string s1, string s2) {
             continue;
         }
         ip = stoi(rem_head) / stoi(div_head);
+        debug = 0;
         buf = subtract_(rem, multiply_(to_string(ip), div));
+        debug = 5;
         if (debug >= 4) cout << "ip: " << ip << ", buf: " << buf << endl;
         if (buf.substr(0, 1) == "-") {
+            if (debug >= 4) cout << "initial estimate ip: " << ip << " is over, rebalancing" << endl;
             while (buf.substr(0, 1) == "-") {
                 ip--;
+                debug = 0;
                 buf = add_(buf, div);
-                if (debug >= 3) cout << "ip: " << ip << ", buf: " << buf << endl;
+                debug = 5;
+                if (debug >= 3) cout << "rebalancing, ip: " << ip << ", buf: " << buf << endl;
             }
         }
         rem = string(buf);
@@ -484,7 +496,9 @@ string divide_(string s1, string s2) {
     }
 
     if (debug >= 2) cout << "multiplying s1: " << s1 << " by 1/s2: " << recip << endl;
+    debug = 0;
     res = multiply_(s1, recip);
+    debug = debug_;
 
     // replace any sign
     if (res != "0")
@@ -517,6 +531,7 @@ void clean_(string &s) {
         }
         s = s.substr(0, l + 1);
     }
+    if (debug >= 4) cout << "cleaned: '" << s << "'" << endl;
 }
 
 void test_() {
@@ -524,7 +539,7 @@ void test_() {
     auto test = [&](string op, string (*fn)(string, string), string n1, string n2, string expected) {
         string res = fn(n1, n2);
         string sres = res == expected ? "pass" : "fail";
-        cerr << "test | " << n1 << " " << op << " " << n2 << " | [" << sres << "] expected: " << expected << ", res: " << res << endl;
+        cerr << "test | " << n1 << " " << op << " " << n2 << " | [" << sres << "] expected: " << expected << ", res: " << res << "\n" << endl;
         return sres;
     };
     results[test("+", &add_, "40", "10", "50")]++;
@@ -544,7 +559,7 @@ void test_() {
 
     int res_total = results["pass"] + results["fail"];
     char buf[50];
-    sprintf(buf, "%.02f", results["pass"] / (double)res_total);
+    sprintf(buf, "%0.02f", 100 * results["pass"] / (double)res_total);
     string res_success = buf;
     cerr << results["pass"] << " [/" << res_total << "] passes - " << res_success << "%" << endl;
 }
