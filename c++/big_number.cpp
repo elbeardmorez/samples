@@ -539,6 +539,7 @@ string round_(string &s, int dp) {
 void clean_(string &s) {
     // strip leading / trailing 0s
     int l = 0;
+
     while (l < s.length() - 1 && s.substr(l, 1) == "0")
         l++;
     s = s.substr(l);
