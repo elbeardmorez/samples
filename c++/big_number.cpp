@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <sstream>
 
 using namespace std;
 
@@ -221,7 +222,8 @@ string subtract_(string s1, string s2) {
 
 string multiply_(string s1, string s2) {
 
-    string res;
+    int debug_ = debug;
+    string res = "";
 
     clean_(s1);
     clean_(s2);
@@ -248,105 +250,64 @@ string multiply_(string s1, string s2) {
     // ultimate sign
     string sign = n1 + n2 == 1 ? "-" : "";
 
-    // shift any mantissa
-    int l_mantissa;
     int dot1 = s1.find(".");
-    int shift = 0;
-    if (dot1 > -1) {
-        l_mantissa = l_s1 - dot1 - 1;
-        shift += l_mantissa;
-        s1 = s1.erase(dot1, 1);
-        l_s1--;
-    }
     int dot2 = s2.find(".");
-    if (dot2 > -1) {
-        l_mantissa = l_s2 - dot2 - 1;
-        shift += l_mantissa;
-        s2 = s2.erase(dot2, 1);
-        l_s2--;
-    }
+    if (dot1 > -1) {
+        s1.erase(dot1, 1);
+        l_s1--;
+    } else
+        dot1 = l_s1;
 
-    int l;
+    if (dot2 > -1) {
+        s2.erase(dot2, 1);
+        l_s2--;
+    } else
+        dot2 = l_s2;
+
+    if (debug > 5) cout << "multiply_: s1 " << s1 << ", s2: " << s2 << endl;
+
+    int idx = 0;
+    int v;
+
+    int digits = (l_s1 - 1) + (l_s2 - 1) + 1;
+    vector<int> res_(digits, 0);
+    int l_s = res_.size();
+
+    if (debug > 5) cout << digits << endl;
+
     int i1;
     int i2;
-    int idx;
-    int idx2;
-    int mult;
-    vector<string> parts;
-    string order1 = "";
-    if (debug >= 10) cout << "parts, s1: '" << s1 << "', s2: '" << s2 << "'" << endl;
-    for (idx = l_s1 - 1; idx >= 0; idx--) {
-        if (debug >= 5) cout << "idx: " << idx << ", ss1: '" << s1.substr(idx, 1) << "'" << endl;
-        i1 = stoi(s1.substr(idx, 1));
-        string order2 = "";
-        idx2 = 0;
-        for (idx2 = l_s2 - 1; idx2 >= 0; idx2--) {
-            if (debug >= 5) cout << "idx2: " << idx2 << ", ss2: '" << s2.substr(idx2, 1) << "'" << endl;
-            i2 = stoi(s2.substr(idx2, 1));
-            if (debug >= 10) cout << "orders: " << order1.length() << "|" << order2.length() << \
-                                     ", multiplying i1: " << i1 << ", i2: " << i2 << endl;
-            mult = i1 * i2;
-            parts.push_back(to_string(mult) + order1 + order2);
-            order2 += "0";
+    for (int l = l_s1 - 1; l >= 0; l--) {
+        i1 = stoi(s1.substr(l, 1));
+        if (i1 == 0) continue;
+        for (int l2 = l_s2 - 1; l2 >= 0; l2--) {
+            i2 = stoi(s2.substr(l2, 1));
+            if (i2 == 0) continue;
+            idx = l_s - (l_s1 - l + l_s2 - l2) + 1;
+            v = i1 * i2;
+            res_[idx] += v;
+            if (debug > 5) cout << "l: " << l << ", l2: " << l2 << ", idx: " << idx << ", v: " << v << endl;
         }
-        order1 += "0";
     }
-    // sum parts
-    if (debug >= 10) {
-        cout << "parts:" << endl;
-        for (auto itr = parts.begin(); itr < parts.end(); ++itr)
-            cout << *itr << endl;
-    }
-
-    string part;
-    idx = 0;
-    int carry = 0;
-    string s_carry;
-    while (parts.size() > 0) {
-        for (int l = parts.size() - 1; l >= 0; l--) {
-            part = parts[l];
-            if (part.length() <= idx)
-                parts.erase(parts.begin() + l);
-            else {
-                carry += stoi(part.substr(part.length() - 1 - idx, 1));
-            }
+    for (int l = l_s - 1; l >= 0; l--) {
+        if (res_[l] > 9) {
+            if (debug >= 6) cout << "idx: " << l << ", v: " << res_[l - 1] << ", added: " << res_[l] / 10 << endl;
+            res_[l - 1] += (res_[l] / 10);
+            res_[l] = res_[l] % 10;
         }
-        if (parts.size() == 0)
-            break;
-        s_carry = to_string(carry);
-        if (debug >= 4) cout << "res: " << res << ", carry [pre]: " << carry << endl;
-        if (s_carry.length() == 1) {
-            res = s_carry + res;
-            carry = 0;
-        } else {
-            res = s_carry.substr(s_carry.length() - 1) + res;
-            carry = stoi(s_carry.substr(0, s_carry.length() - 1));
-        }
-        if (debug >= 4) cout << "res: " << res << ", carry [post]: " << carry << endl;
-        idx++;
     }
+    stringstream ss;
+    for (auto itr = res_.begin(); itr != res_.end(); itr++)
+        ss << *itr;
+    res = ss.str();
 
-    if (carry != 0)
-        res = to_string(carry) + res;
+    int dot = dot1 - 1 + dot2 - 1 + 1;
+    if (dot < l_s)
+        res = res.substr(0, dot) + "." + res.substr(dot);
 
-    if (shift > 0) {
-        if (debug >= 3) cout << "shift: " << shift << endl;
-        int l_res = res.length();
-        if (l_res >= shift)
-            res = res.substr(0, l_res - shift) + "." + res.substr(l_res - shift);
-        else
-            for (int l = 0; l < shift - l_res; l++) res += "0";
-    }
-
-    // replace any sign
-    if (res != "0")
-        res = sign + res;
-
-    clean_(res);
     res = round_(res);
 
-    if (debug >= 1) cout << "multiplied s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << "\n" << endl;
-    return res;
+    return sign + res;
 }
 
 string divide_(string s1, string s2) {
