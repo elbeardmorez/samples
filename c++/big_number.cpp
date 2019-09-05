@@ -594,16 +594,35 @@ string divide_(string s1, string s2) {
     return res;
 }
 
-string round_(string &s, int dp) {
+string round_(string &s, int sf) {
     string rounded = "";
     bool round = false;
 
+    clean_(s);
+    string sign = "";
+    if (s.substr(0, 1) == "-") {
+        sign = "-";
+        s = s.substr(1);
+    }
     int dot = s.find(".");
     if (dot == -1)
-        return s;
-    if (s.length() - dot < dp)
-        return s;
-    s = s.substr(0, dot + dp);
+        return sign + s;
+    if (s.length() < sf)
+        return sign + s;
+    int l = 0;
+    string ss;
+    while (true) {
+        ss = s.substr(l, 1);
+        if (ss != "0" && ss != ".")
+            break;
+        l++;
+    }
+    if (s.length() < sf)
+        return sign + s;
+    s = s.substr(0, l + sf);
+
+    if (debug >= 4) cout << "round: " << s << ", sf: " << sf << endl;
+
     for (auto itr = s.rbegin(); itr < s.rend(); itr++) {
         string c(1, *itr);
         if (debug >= 6) cout << "c: " << c << endl;
@@ -611,7 +630,7 @@ string round_(string &s, int dp) {
             if (stoi(c) >= 5)
                 round = true;
             rounded = "0";
-        } else if (*itr == '.' || !round)
+        } else if (*itr == '.' || *itr == '-' || !round)
             rounded = c + rounded;
         else if (stoi(c) == 9)
             rounded = "0" + rounded;
@@ -623,7 +642,7 @@ string round_(string &s, int dp) {
     }
     if (round) rounded = "1" + rounded;
     clean_(rounded);
-    return rounded;
+    return sign + rounded;
 }
 
 void clean_(string &s) {
