@@ -10,6 +10,7 @@ using namespace std;
 
 void clean_(string &);
 string round_(string &, int = 10);
+int cmp_(string, string);
 
 static int debug = 0;
 
@@ -76,20 +77,8 @@ string add_(string s1, string s2) {
     }
     for (int l = 0; l < append; l++) x->push_back('0');
 
-    // order by magnitude
-    int switch_ = 0;
-    if (l_s1 == l_s2) {
-        for (int l = 0; l < l_s1; l++) {
-            if (s1.substr(l, 1) == ".") continue;
-            if (stoi(s1.substr(l, 1)) > stoi(s2.substr(l, 1)))
-                break;
-            else if (stoi(s1.substr(l, 1)) < stoi(s2.substr(l, 1))) {
-                switch_ = 1;
-                break;
-            }
-        }
-    } else if (l_s2 > l_s1)
-        switch_ = 1;
+    // note magnitudes
+    int switch_ = cmp_(s2, s1) > 0 ? 1 : 0;
 
     // ultimate sign
     string sign = "";
@@ -629,6 +618,33 @@ void clean_(string &s) {
     }
     s = sign + s;
     if (debug >= 4) cout << "cleaned: '" << s << "'" << endl;
+}
+
+int cmp_(string s1, string s2) {
+    if (s1 == s2)
+        return 0;
+    else {
+        int l_s1 = s1.length();
+        int l_s2 = s2.length();
+        if (l_s1 < l_s2)
+            return -1;
+        else if (l_s1 > l_s2)
+            return 1;
+        else {
+            int i1;
+            int i2;
+            for (int l = 0; l < l_s1; l++) {
+                if (s1.substr(l, 1) == ".") continue;
+                i1 = stoi(s1.substr(l, 1));
+                i2 = stoi(s2.substr(l, 1));
+                if (i1 < i2)
+                    return -1;
+                else if (i1 > i2)
+                    return 1;
+            }
+            return 0;
+        }
+    }
 }
 
 string factorial_(string n) {
