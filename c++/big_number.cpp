@@ -692,6 +692,15 @@ void test_factorial_(int x) {
     return;
 }
 
+void test_nCr_(int x, int r) {
+    long nCr;
+    for (int l = 1; l <= x; l++) {
+       nCr = nCr_(l, r);
+       cout << "nCr | " << l << "C" << r << ": " << nCr << endl;
+    }
+    return;
+}
+
 int main(int argc, char** argv) {
 
     auto _ = getenv("DEBUG");
@@ -708,6 +717,15 @@ int main(int argc, char** argv) {
             if (argc > 3)
                 max_ = stoi(argv[3]);
             test_factorial_(max_);
+        } else if (string(argv[2]) == "nCr") {
+            cerr << "running combinations tests:" << endl;
+            int max_n = 10;
+            int r = 2;
+            if (argc > 3)
+                max_n = stoi(argv[3]);
+            if (argc > 4)
+                r = stoi(argv[4]);
+            test_nCr_(max_n, r);
         }
         return 0;
     } else {
