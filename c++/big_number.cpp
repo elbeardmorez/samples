@@ -701,43 +701,43 @@ int main(int argc, char** argv) {
         if (argc == 2 || string(argv[2]) == "arithmetic") {
             cerr << "running arithmetic tests:" << endl;
             test_arithmetic_();
-        return 0;
+            return 0;
         } else if (string(argv[2]) == "factorial") {
             cerr << "running factorial tests:" << endl;
             int max_ = 10;
             if (argc > 3)
                 max_ = stoi(argv[3]);
             test_factorial_(max_);
-    }
+        }
         return 0;
     } else {
-    int argc_required = 3;
-    if (argc != 1 + argc_required) {
-        cout << "[error] missing arg" << (argc - argc_required != 1 ? "s, " : ", ") << argc_required << " required" << endl;
-        cout << "[error] syntax: bignumber OPERATOR number1 number2" << endl;
+        int argc_required = 3;
+        if (argc != 1 + argc_required) {
+            cout << "[error] missing arg" << (argc - argc_required != 1 ? "s, " : ", ") << argc_required << " required" << endl;
+            cout << "[error] syntax: bignumber OPERATOR number1 number2" << endl;
             return 1;
+        }
+
+        string op = string(argv[1]);
+        string s1 = string(argv[2]);
+        string s2 = string(argv[3]);
+
+        string res;
+        if (op == "+" ) {
+            cout << "[info] adding | " << s1 << " + " << s2 << endl;
+            res = add_(s1, s2);
+        } else if (op == "-" ) {
+            cout << "[info] subtracting | " << s1 << " - " << s2 << endl;
+            res = subtract_(s1, s2);
+        } else if (op == "*" ) {
+            cout << "[info] multiplying | " << s1 << " * " << s2 << endl;
+            res = multiply_(s1, s2);
+        } else if (op == "/" ) {
+            cout << "[info] dividing | " << s1 << " / " << s2 << endl;
+            res = divide_(s1, s2);
+        }
+
+        cout << res << endl;
+        return 0;
     }
-
-    string op = string(argv[1]);
-    string s1 = string(argv[2]);
-    string s2 = string(argv[3]);
-
-    string res;
-    if (op == "+" ) {
-        cout << "[info] adding | " << s1 << " + " << s2 << endl;
-        res = add_(s1, s2);
-    } else if (op == "-" ) {
-        cout << "[info] subtracting | " << s1 << " - " << s2 << endl;
-        res = subtract_(s1, s2);
-    } else if (op == "*" ) {
-        cout << "[info] multiplying | " << s1 << " * " << s2 << endl;
-        res = multiply_(s1, s2);
-    } else if (op == "/" ) {
-        cout << "[info] dividing | " << s1 << " / " << s2 << endl;
-        res = divide_(s1, s2);
-    }
-
-    cout << res << endl;
-    return 0;
-}
 }
