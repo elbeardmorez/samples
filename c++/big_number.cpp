@@ -364,28 +364,27 @@ string divide_(string s1, string s2) {
     clean_(s2_);
 
     /*
-    shift most significant to 1x10-1 digit
-    e.g. 0.05 -> 0.5 shift 1
-       . 100 -> 1 shift -3
+    shift most significant to 1x10^0 digit
+    e.g. 0.05 -> 5.0 shift 2
+       . 100 -> 1 shift -2
     */
     int shift = 0;
     int dot = s2_.find(".");
     if (dot == -1)
-        shift = -(s2_.length());
+        shift = -(s2_.length() - 1);
     else {
         if (s2_.substr(0, 1) == "0") {
-            shift = 0;
+            shift = 1;
             s2_ = s2_.substr(2);
             while (s2_.substr(0, 1) == "0") {
                 s2_ = s2_.substr(1);
                 shift++;
             }
         } else {
-            shift = -dot;
+            shift = -(dot - 1);
             s2_ = s2_.substr(0, dot) + s2_.substr(dot + 1);
         }
     }
-    s2_ = "0" + s2_;
     if (debug >= 2) cerr << "s2_: " << s2_ << ", shift: " << shift << endl;
 
     string one = "1";
@@ -409,21 +408,18 @@ string divide_(string s1, string s2) {
     int ip;
     string buf;
     string buf2;
-    int max_digits = 150;
+    int max_significant_digits = 15;
     if (debug >= 2) cout << "reciprocal: 1 / s2_, dividend: " << dividend << ", divisor: " << divisor << ", shift: " << shift << endl;
 
     // idx is fixed to the dividend!
     while (idx <= l_dividend) {
-        if (debug >= 3) cout << "reciprocal: " << reciprocal << endl;
 
-        // work on next dividend digit
-
-        if (reciprocal.length() - shift == max_digits)
+        if (reciprocal.length() >= max_significant_digits)
             break;
 
-        if (debug >= 3) cout << "loop, remainder: " << remainder << endl;
+        if (debug >= 3) cout << "loop | reciprocal: " << reciprocal << ", divisor: " << divisor << ", remainder: " << remainder << ", cmp: " << cmp_(divisor, remainder) << endl;
 
-        // get head estimate
+        // work on next digit
         if (l_remainder < l_dividend) {
             // extend dividend for further precision
             if (debug >= 4) cout << "extending dividend" << endl;
@@ -433,6 +429,23 @@ string divide_(string s1, string s2) {
             remainder += dividend.substr(idx, 1);
             l_remainder++;
         }
+
+        // get head estimate
+        if (debug >= 4) cout << "estimate, divisor: [" << l_divisor << "] " << divisor << ", remainder: [" << l_remainder << "] " << remainder << endl;
+        while (l_divisor > l_remainder || \
+            (l_divisor == l_remainder && cmp_(divisor, remainder) > 0)) {
+
+            if (debug >= 4) cout << "no whole divisions, next digit" << endl;
+            reciprocal += "0";
+            remainder += "0";
+            l_remainder++;
+            dividend += "0";
+            l_dividend++;
+            idx++;
+            if (debug >= 4) cout << "estimate, divisor: [" << l_divisor << "] " << divisor << ", remainder: [" << l_remainder << "] " << remainder << endl;
+            continue;
+        }
+
         idx++;
         idx2 = 0;
         remainder_ = "";
@@ -441,7 +454,6 @@ string divide_(string s1, string s2) {
         l_divisor_ = 0;
         while (idx2 < min(5, l_remainder)) {
             // add to remainder 'head' until valid for estimate
-            if (debug >= 3) cout << "l_remainder: " << l_remainder << ", idx2: " << idx2 << endl;
             remainder_ += remainder.substr(idx2, 1);
             l_remainder_++;
             if (idx2 < l_divisor) {
@@ -449,6 +461,11 @@ string divide_(string s1, string s2) {
                 l_divisor_++;
             }
             idx2++;
+            if (debug >= 3) cout << "l_remainder: " << l_remainder << ", idx2: " << idx2 << ", divisor_: " << divisor_ << ", remainder_: " << remainder_ << endl;
+        }
+        if (cmp_(divisor_, remainder_) > 0) {
+            remainder_ += remainder.substr(idx2, 1);
+            l_remainder_++;
         }
         if (debug >= 3) cout << "remainder: " << remainder <<  ", divisor_: " << divisor_ << ", remainder_: " << remainder_ << endl;
         if (divisor_ == "0") {
@@ -498,7 +515,9 @@ string divide_(string s1, string s2) {
         if (debug >= 3) cout << "integer part: " << ip << ", remainder: " << remainder << endl;
     }
     if (debug >= 2) cerr << "reciprocal: " << reciprocal << endl;
-    if (shift != 0) {
+    if (shift == 0)
+        reciprocal = reciprocal.substr(0, 1) + "." + reciprocal.substr(1);
+    else {
         int l_reciprocal = reciprocal.length();
         if (debug >= 1) cout << "unshifting reciprocal: " << reciprocal << " by "  << shift << " d.p." << endl;
         int shift_ = abs(shift);
