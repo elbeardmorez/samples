@@ -670,10 +670,10 @@ string factorial_(string n) {
     return n == "0" || n == "1" ? "1" : multiply_(n, factorial_(add_(n, "-1")));
 }
 
-long nCr_(long n, long r) {
+string nCr_(long n, long r) {
     string res = divide_(factorial_(to_string(n)), multiply_(factorial_(to_string(r)), factorial_(to_string(n - r))));
     if (debug >= 10) cerr << "nCr_: " << res << endl;
-    return stol(res);
+    return res;
 }
 
 void test_arithmetic_() {
@@ -728,7 +728,7 @@ void test_factorial_(int x) {
 }
 
 void test_nCr_(int x, int r) {
-    long nCr;
+    string nCr;
     for (int l = 1; l <= x; l++) {
        nCr = nCr_(l, r);
        cout << "nCr | " << l << "C" << r << ": " << nCr << endl;
