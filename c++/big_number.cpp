@@ -578,9 +578,11 @@ string round_(string &s, int sf) {
     }
     if (s.length() < sf)
         return sign + s;
+    if (l + sf - 1 == dot)
+        l++;
     s = s.substr(0, l + sf);
 
-    if (debug >= 4) cout << "round: " << s << ", sf: " << sf << endl;
+    if (debug >= 4) cout << "round, l: " << l << ", sf: " << sf << ", s: " << s << endl;
 
     for (auto itr = s.rbegin(); itr < s.rend(); itr++) {
         string c(1, *itr);
