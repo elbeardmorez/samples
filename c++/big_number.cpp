@@ -318,6 +318,9 @@ string divide_(string s1, string s2) {
     string s1_orig = string(s1);
     string s2_orig = string(s2);
 
+    clean_(s1);
+    clean_(s2);
+
     int l_s1 = s1.length();
     int l_s2 = s2.length();
 
@@ -334,18 +337,6 @@ string divide_(string s1, string s2) {
         s2 = s2.substr(1);
         l_s2--;
     }
-
-    // strip leading 0s
-    int l = 0;
-    while (l < l_s1 && s1.substr(l, 1) == "0")
-        l++;
-    s1 = s1.substr(l);
-    if (s1.substr(0, 1) == ".") s1 = "0" + s1;
-    l = 0;
-    while (l < l_s2 && s2.substr(l, 1) == "0")
-        l++;
-    s2 = s2.substr(l);
-    if (s2.substr(0, 1) == ".") s2 = "0" + s2;
 
     // equalise mantissa
     int dot1 = s1.find(".");
@@ -524,7 +515,7 @@ string divide_(string s1, string s2) {
         int l_reciprocal = reciprocal.length();
         if (debug >= 1) cout << "unshifting reciprocal: " << reciprocal << " by "  << shift << " d.p." << endl;
         int shift_ = abs(shift);
-        for (l = 0; l < shift_; l++) {
+        for (int l = 0; l < shift_; l++) {
             if (shift > 0)
                 reciprocal += "0";
             else
@@ -533,8 +524,10 @@ string divide_(string s1, string s2) {
         }
         if (shift < 0) {
             reciprocal = reciprocal.substr(0, 1) + "." + reciprocal.substr(1);
-        } else
+        } else {
+            clean_(reciprocal);
             reciprocal = reciprocal.substr(0, shift) + "." + reciprocal.substr(shift);
+        }
         if (debug >= 3) cout << "reciprocal: " << reciprocal << endl;
     }
     if (debug >= 2) cerr << "reciprocal shifted: " << reciprocal << endl;
@@ -549,7 +542,6 @@ string divide_(string s1, string s2) {
         res = sign + res;
 
     res = round_(res);
-    clean_(res);
 
     if (debug >= 1) cout << "divided s1: " << s1_orig << ", s2: " << s2_orig << ", res: " << res << endl;
     return res;
