@@ -432,7 +432,7 @@ string divide_(string s1, string s2) {
             dividend += "0";
             l_dividend++;
             // bring down next dividend digit to exend remainder
-            remainder += dividend.substr(idx2, 1);
+            remainder += dividend.substr(idx, 1);
             l_remainder++;
         }
         idx++;
