@@ -553,7 +553,8 @@ string divide_(string s1, string s2) {
     return res;
 }
 
-string round_(string &s, int sf) {
+string round_(string &s, int sfh) {
+    // significant figures beyond integer part hybrid
     string rounded = "";
     bool round = false;
 
@@ -566,23 +567,21 @@ string round_(string &s, int sf) {
     int dot = s.find(".");
     if (dot == -1)
         return sign + s;
-    if (s.length() < sf)
+    if (s.length() < sfh)
         return sign + s;
-    int l = 0;
+    int l = dot;
     string ss;
     while (true) {
         ss = s.substr(l, 1);
-        if (ss != "0" && ss != ".")
+        if (ss != "0")
             break;
         l++;
     }
-    if (s.length() < sf)
+    if (s.length() < sfh)
         return sign + s;
-    if (l + sf - 1 == dot)
-        l++;
-    s = s.substr(0, l + sf);
+    s = s.substr(0, min(l + sfh, (int)(s.length())));
 
-    if (debug >= 4) cout << "round, l: " << l << ", sf: " << sf << ", s: " << s << endl;
+    if (debug >= 4) cout << "round, l: " << l << ", sfh: " << sfh << ", s: " << s << endl;
 
     for (auto itr = s.rbegin(); itr < s.rend(); itr++) {
         string c(1, *itr);
