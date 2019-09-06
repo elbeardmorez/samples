@@ -388,8 +388,6 @@ string divide_(string s1, string s2) {
     s2_ = "0" + s2_;
     if (debug >= 2) cerr << "s2_: " << s2_ << ", shift: " << shift << endl;
 
-    int l_s2_ = s2_.length();
-
     string one = "1";
     string reciprocal = "";
     string divisor = s2_;
