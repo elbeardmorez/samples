@@ -290,7 +290,7 @@ string multiply_(string s1, string s2) {
         }
     }
     for (int l = l_s - 1; l >= 0; l--) {
-        if (res_[l] > 9) {
+        if (res_[l] > 9 && l > 0) {
             if (debug >= 6) cout << "idx: " << l << ", v: " << res_[l - 1] << ", added: " << res_[l] / 10 << endl;
             res_[l - 1] += (res_[l] / 10);
             res_[l] = res_[l] % 10;
