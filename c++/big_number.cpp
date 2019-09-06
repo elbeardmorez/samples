@@ -631,7 +631,17 @@ void clean_(string &s) {
     if (debug >= 4) cout << "cleaned: '" << s << "'" << endl;
 }
 
-void test_() {
+string factorial_(string n) {
+    return n == "0" || n == "1" ? "1" : multiply_(n, factorial_(add_(n, "-1")));
+}
+
+long nCr_(long n, long r) {
+    string res = divide_(factorial_(to_string(n)), multiply_(factorial_(to_string(r)), factorial_(to_string(n - r))));
+    if (debug >= 10) cerr << "nCr_: " << res << endl;
+    return stol(res);
+}
+
+void test_arithmetic_() {
     map<string, int> results{{"pass", 0}, {"fail", 0}};
     auto test = [&](string op, string (*fn)(string, string), string n1, string n2, string expected) {
         string res = fn(n1, n2);
@@ -669,6 +679,17 @@ void test_() {
     sprintf(buf, "%0.02f", 100 * results["pass"] / (double)res_total);
     string res_success = buf;
     cerr << results["pass"] << " [/" << res_total << "] passes - " << res_success << "%" << endl;
+
+    return;
+}
+
+void test_factorial_(int x) {
+    string fac;
+    for (int l = 1; l <= x; l++) {
+       fac = factorial_(to_string(l));
+       cout << l << "! | " << fac << endl;
+    }
+    return;
 }
 
 int main(int argc, char** argv) {
@@ -676,17 +697,25 @@ int main(int argc, char** argv) {
     auto _ = getenv("DEBUG");
     if (_ != NULL) debug = stoi(_);
 
-    if (argc >= 2 && string(argv[1]) == "test") {
-        cerr << "running tests:" << endl;
-        test_();
+    if (string(argv[1]) == "test") {
+        if (argc == 2 || string(argv[2]) == "arithmetic") {
+            cerr << "running arithmetic tests:" << endl;
+            test_arithmetic_();
         return 0;
+        } else if (string(argv[2]) == "factorial") {
+            cerr << "running factorial tests:" << endl;
+            int max_ = 10;
+            if (argc > 3)
+                max_ = stoi(argv[3]);
+            test_factorial_(max_);
     }
-
+        return 0;
+    } else {
     int argc_required = 3;
     if (argc != 1 + argc_required) {
         cout << "[error] missing arg" << (argc - argc_required != 1 ? "s, " : ", ") << argc_required << " required" << endl;
         cout << "[error] syntax: bignumber OPERATOR number1 number2" << endl;
-        exit(1);
+            return 1;
     }
 
     string op = string(argv[1]);
@@ -710,4 +739,5 @@ int main(int argc, char** argv) {
 
     cout << res << endl;
     return 0;
+}
 }
