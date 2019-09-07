@@ -408,7 +408,7 @@ string divide_(string s1, string s2) {
     int ip;
     string buf;
     string buf2;
-    int max_significant_digits = 15;
+    int max_significant_digits = 50;
     if (debug >= 2) cout << "reciprocal: 1 / s2_, dividend: " << dividend << ", divisor: " << divisor << ", shift: " << shift << endl;
 
     // idx is fixed to the dividend!
