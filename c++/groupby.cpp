@@ -40,13 +40,13 @@ int test(string s) {
     if (s.find(",") == -1) {
         // string chars
         // s: tiesto
-    map<char, vector<char>> map_;
-    groupby(s, map_);
+        map<char, vector<char>> map_;
+        groupby(s, map_);
         cout << "testing string: '" << s << "'" << endl;
-    for (auto itr = map_.begin(); itr != map_.end(); ++itr) cout << "k: " << itr->first << ", [v]: " << itr->second.size() << endl;
+        for (auto itr = map_.begin(); itr != map_.end(); ++itr) cout << "k: " << itr->first << ", [v]: " << itr->second.size() << endl;
     } else {
         if (s.find('|') != -1) {
-    // objects
+            // objects
             // s: alpha|1,beta|2,beta|5,charlie|10,alpha|100
             vector<obj> objs;
             stringstream ss(s);
@@ -65,17 +65,17 @@ int test(string s) {
                 cout << "[error] no valid objs" << endl;
                 return 1;
             }
-    map<string, vector<obj>> map_2;
-    string (*f_key)(obj&) = [](obj& x) { return x.name; };
-    groupby<vector<obj>, string, obj>(objs, map_2, f_key);
-    cout << "testing objects:";
-    for (auto itr = objs.begin(); itr != objs.end(); ++itr)
-        cout << " " << itr->name << "|" << itr->size;
-    cout << endl;
-    for (auto itr = map_2.begin(); itr != map_2.end(); ++itr)
-        cout << "k: " << itr->first << ", [v]: " << itr->second.size() << endl;
+            map<string, vector<obj>> map_2;
+            string (*f_key)(obj&) = [](obj& x) { return x.name; };
+            groupby<vector<obj>, string, obj>(objs, map_2, f_key);
+            cout << "testing objects:";
+            for (auto itr = objs.begin(); itr != objs.end(); ++itr)
+                cout << " " << itr->name << "|" << itr->size;
+            cout << endl;
+            for (auto itr = map_2.begin(); itr != map_2.end(); ++itr)
+                cout << "k: " << itr->first << ", [v]: " << itr->second.size() << endl;
         } else {
-    // pointer keys
+            // pointer keys
             // s: alpha,beta,charlie,alpha
             stringstream ss(s);
             string s_;
@@ -84,11 +84,11 @@ int test(string s) {
                 v.push_back(string(s_));
             map<const char *, vector<string>, bool (*)(const char*, const char*)> map_3([](const char* x, const char* y) -> bool { return strcmp(x, y) < 0; });
             groupby(v, map_3, (const char* (*)(string&))([](string& x) -> const char* { return x.data(); }));
-    cout << "testing pointer keys:";
-    for (auto itr = v.begin(); itr != v.end(); ++itr) cout << " " << *itr; cout << endl;
-    for (auto itr = map_3.begin(); itr != map_3.end(); ++itr)
-        cout << "k: " << itr->first << ", [v]: " << itr->second.size() << endl;
-}
+            cout << "testing pointer keys:";
+            for (auto itr = v.begin(); itr != v.end(); ++itr) cout << " " << *itr; cout << endl;
+            for (auto itr = map_3.begin(); itr != map_3.end(); ++itr)
+                cout << "k: " << itr->first << ", [v]: " << itr->second.size() << endl;
+        }
     }
     return 0;
 }
